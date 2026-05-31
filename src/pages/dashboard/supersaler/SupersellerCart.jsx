@@ -5,7 +5,6 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
 import {
-  FaTrash,
   FaChevronLeft,
   FaChevronRight,
   FaSearch,
@@ -14,7 +13,6 @@ import { IoBagCheckOutline } from "react-icons/io5";
 import { Api } from "../../../api/API";
 import { ApiPaths } from "../../../api/apiPaths";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
-import { emitShopStateChange } from "../../../utils/shopSignals";
 import SkeletonLoader from "../../../components/common/SkeletonLoader";
 
 const priceNum = (v) => {
@@ -27,7 +25,6 @@ const priceNum = (v) => {
   return Number.isFinite(n) ? n : 0;
 };
 const money = (v) => priceNum(v).toLocaleString();
-const clamp = (v, min = 1, max = 999999) => Math.max(min, Math.min(max, v));
 
 function CardSkeleton() {
   return <SkeletonLoader variant="card" />;
@@ -80,8 +77,6 @@ const normalizeRow = (row) => {
 
 export default function SupersellerCart() {
   const { userProfile, profileLoading } = useContext(UserProfileContext);
-  const [savingQuantity, setSavingQuantity] = useState({});
-  const qtyTimersRef = useRef({});
   const navigate = useNavigate();
   const token = localStorage.getItem("token") || Cookies.get("token");
   const [items, setItems] = useState([]);
@@ -94,7 +89,6 @@ export default function SupersellerCart() {
   const [sort, setSort] = useState("recent");
   const [limit, setLimit] = useState(12);
   const [page, setPage] = useState(1);
-  const [busyRemove, setBusyRemove] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const deliveryFee = 0;
   const abortRef = useRef(null);
@@ -142,92 +136,6 @@ export default function SupersellerCart() {
   }, [navigate, token]);
 
   useEffect(() => setPage(1), [q, sort, limit]);
-
-  useEffect(() => {
-    return () => {
-      const timers = qtyTimersRef.current;
-      Object.values(timers).forEach((t) => clearTimeout(t));
-    };
-  }, []);
-
-  const changeQuantity = (productId, next) => {
-    const val = clamp(next, 1);
-    setItems((prev) =>
-      prev.map((it) =>
-        it.productId === productId ? { ...it, quantity: val } : it
-      )
-    );
-    setSavingQuantity((m) => ({ ...m, [productId]: true }));
-    const timers = qtyTimersRef.current;
-    if (timers[productId]) clearTimeout(timers[productId]);
-    timers[productId] = setTimeout(async () => {
-      try {
-        await axios.put(
-          `${Api}${ApiPaths.cart.update}`,
-          { productId, quantity: val },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        toast.success("পরিমাণ আপডেট হয়েছে");
-      } catch {
-        toast.error("পরিমাণ আপডেট করা যায়নি");
-        try {
-          const res = await axios.get(`${Api}${ApiPaths.supersaler.cart}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const data = res?.data?.cart || res?.data?.data || res?.data || {};
-          const list = Array.isArray(data.items) ? data.items : [];
-          setItems(list.map(normalizeRow).filter((item) => item.productId));
-        } catch {
-          setItems((prev) =>
-            prev.map((it) =>
-              it.productId === productId
-                ? { ...it, quantity: 1 }
-                : it
-            )
-          );
-        }
-      } finally {
-        setSavingQuantity((m) => {
-          const n = { ...m };
-          delete n[productId];
-          return n;
-        });
-        delete qtyTimersRef.current[productId];
-      }
-    }, 350);
-  };
-
-  const dec = (productId) => {
-    const cur = items.find((i) => i.productId === productId)?.quantity || 1;
-    changeQuantity(productId, cur - 1);
-  };
-
-  const inc = (productId) => {
-    const cur = items.find((i) => i.productId === productId)?.quantity || 1;
-    changeQuantity(productId, cur + 1);
-  };
-
-  const removeItem = async (productId) => {
-    setBusyRemove((m) => ({ ...m, [productId]: true }));
-    const prev = items;
-    setItems((arr) => arr.filter((it) => it.productId !== productId));
-    try {
-      await axios.delete(`${Api}${ApiPaths.cart.remove(productId)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      emitShopStateChange({ cartDelta: -1 });
-      toast.success("কার্ট থেকে সরানো হয়েছে");
-    } catch {
-      toast.error("সরানো যায়নি");
-      setItems(prev);
-    } finally {
-      setBusyRemove((m) => {
-        const c = { ...m };
-        delete c[productId];
-        return c;
-      });
-    }
-  };
 
   const filtered = useMemo(() => {
     let arr = [...items];
@@ -386,8 +294,6 @@ export default function SupersellerCart() {
               const href = `/products/${it.productId}`;
               const lineSubtotal =
                 priceNum(it.price) * (Number(it.quantity) || 0);
-              const removing = !!busyRemove[it.productId];
-              const isSaving = !!savingQuantity[it.productId];
               return (
                 <div key={it.productId} className="h-full">
                   <div className="bg-white border border-gray-200 rounded-xl h-full flex flex-col">
@@ -425,57 +331,18 @@ export default function SupersellerCart() {
                         ৳{" "}
                         <span className="font-semibold">{money(it.price)}</span>
                       </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <div
-                          className={`inline-flex items-center rounded-full border bg-white ${
-                            isSaving ? "opacity-70 pointer-events-none" : ""
-                          }`}
-                        >
-                          <button
-                            onClick={() => dec(it.productId)}
-                            className="px-2 py-1 text-lg leading-none"
-                            aria-label="পরিমাণ কমান"
-                          >
-                            −
-                          </button>
-                          <span className="px-3 select-none">
-                            {it.quantity}
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <span className="rounded-full border bg-white px-3 py-1 text-sm text-gray-700">
+                          পরিমাণ: {it.quantity}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          সাবটোটাল{" "}
+                          <span className="font-medium">
+                            ৳ {money(lineSubtotal)}
                           </span>
-                          <button
-                            onClick={() => inc(it.productId)}
-                            className="px-2 py-1 text-lg leading-none"
-                            aria-label="পরিমাণ বাড়ান"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {isSaving ? (
-                            <span className="animate-pulse">সংরক্ষণ হচ্ছে…</span>
-                          ) : (
-                            <span>
-                              সাবটোটাল{" "}
-                              <span className="font-medium">
-                                ৳ {money(lineSubtotal)}
-                              </span>
-                            </span>
-                          )}
-                        </div>
+                        </span>
                       </div>
-                      <div className="mt-3 flex items-center justify-between">
-                        <button
-                          onClick={() => removeItem(it.productId)}
-                          disabled={removing}
-                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
-                            removing
-                              ? "opacity-60 pointer-events-none"
-                              : "hover:bg-red-50 hover:border-red-300 text-red-700"
-                          } bg-white`}
-                          title="সরান"
-                        >
-                          <FaTrash className="h-4 w-4" />
-                          সরান
-                        </button>
+                      <div className="mt-3 flex items-center justify-end">
                         <Link
                           to={href}
                           className="text-xs font-medium text-green hover:underline"

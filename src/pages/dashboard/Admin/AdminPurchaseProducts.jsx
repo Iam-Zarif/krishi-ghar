@@ -15,39 +15,75 @@ const TABS = [
   {
     id: "wholesaler",
     label: "হোলসেলার",
-    endpoint: "",
+    endpoint: null,
   },
   {
     id: "consumer",
     label: "কনজিউমার",
-    endpoint: "",
+    endpoint: null,
   },
 ];
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pending" },
-  { value: "purchased", label: "Purchased" },
+  { value: "completed", label: "Completed" },
 ];
 
 const getToken = () => Cookies.get("token") || localStorage.getItem("token") || "";
 
+const isOrderRow = (row) => {
+  if (!row || typeof row !== "object") return false;
+
+  return Boolean(
+    row.orderId ||
+      row.orderStatus ||
+      row.paymentStatus ||
+      row.purchaseStatus ||
+      row.order ||
+      Array.isArray(row.items),
+  );
+};
+
+const getResponseArrays = (data) =>
+  [
+    data,
+    data?.orders,
+    data?.purchases,
+    data?.data,
+    data?.data?.orders,
+    data?.data?.purchases,
+    data?.products,
+    data?.data?.products,
+  ].filter(Array.isArray);
+
 const getRows = (data) => {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.products)) return data.products;
-  if (Array.isArray(data?.orders)) return data.orders;
-  if (Array.isArray(data?.purchases)) return data.purchases;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.products)) return data.data.products;
-  if (Array.isArray(data?.data?.orders)) return data.data.orders;
-  if (Array.isArray(data?.data?.purchases)) return data.data.purchases;
-  return [];
+  const arrays = getResponseArrays(data);
+  const rows = arrays.flatMap((items) => items.filter(isOrderRow));
+
+  return {
+    rows,
+    unsupportedShape: rows.length === 0 && arrays.some((items) => items.length > 0),
+  };
 };
 
 const getOrderId = (row) =>
   row?._id || row?.id || row?.order?._id || row?.orderId || row?.order?.orderId || "";
 
-const getStatus = (row) =>
-  String(row?.status || row?.orderStatus || row?.purchaseStatus || "pending").toLowerCase();
+const getStatus = (row) => {
+  const status = String(
+    row?.status || row?.orderStatus || row?.purchaseStatus || "pending"
+  ).toLowerCase();
+
+  return status === "purchased" ? "completed" : status;
+};
+
+const getStatusPayload = (nextStatus) => {
+  if (nextStatus === "completed") {
+    return { orderStatus: "completed", paymentStatus: "paid" };
+  }
+
+  return { orderStatus: nextStatus };
+};
 
 const getItems = (row) => {
   if (Array.isArray(row?.items)) return row.items;
@@ -78,6 +114,7 @@ export default function AdminPurchaseProducts() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busyId, setBusyId] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
 
@@ -90,9 +127,11 @@ export default function AdminPurchaseProducts() {
     const token = getToken();
     setRows([]);
     setError("");
+    setNotice("");
 
     if (!activeConfig.endpoint) {
       setLoading(false);
+      setNotice("এই ট্যাবের অর্ডার তালিকা API এখনো উপলব্ধ নয়।");
       return;
     }
 
@@ -111,7 +150,13 @@ export default function AdminPurchaseProducts() {
           signal: controller.signal,
           headers: { Authorization: `Bearer ${token}` },
         });
-        setRows(getRows(data));
+        const parsed = getRows(data);
+        setRows(parsed.rows);
+        setNotice(
+          parsed.unsupportedShape
+            ? "এই endpoint থেকে অর্ডার তালিকা পাওয়া যায়নি। অ্যাডমিন সুপারসেলার অর্ডার তালিকা API প্রয়োজন।"
+            : "",
+        );
       } catch (err) {
         if (err?.name === "CanceledError" || err?.name === "AbortError") return;
         setError(err?.response?.data?.message || "ডাটা লোড করা যায়নি");
@@ -141,16 +186,18 @@ export default function AdminPurchaseProducts() {
 
     try {
       setBusyId(orderId);
+      const payload = getStatusPayload(nextStatus);
+
       await axios.patch(
         `${Api}${ApiPaths.admin.updateStatus(orderId)}`,
-        { status: nextStatus },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("স্ট্যাটাস আপডেট হয়েছে");
       setRows((current) =>
         current.map((item) =>
           getOrderId(item) === orderId
-            ? { ...item, status: nextStatus, orderStatus: nextStatus }
+            ? { ...item, status: nextStatus, ...payload }
             : item,
         ),
       );
@@ -193,12 +240,15 @@ export default function AdminPurchaseProducts() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                disabled={!tab.endpoint}
+                onClick={() => {
+                  if (tab.endpoint) setActiveTab(tab.id);
+                }}
                 className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
                   active
                     ? "border-green text-green"
                     : "border-transparent text-gray-500 hover:text-gray-800"
-                }`}
+                } disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:text-gray-300`}
               >
                 {tab.label}
               </button>
@@ -217,6 +267,10 @@ export default function AdminPurchaseProducts() {
         ) : loading ? (
           <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
             ডাটা লোড হচ্ছে...
+          </div>
+        ) : notice ? (
+          <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
+            {notice}
           </div>
         ) : rows.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
