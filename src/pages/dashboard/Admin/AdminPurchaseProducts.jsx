@@ -11,6 +11,7 @@ const TABS = [
     id: "supersaler",
     label: "সুপার সেলার",
     endpoint: ApiPaths.admin.viewSupersalerProduct,
+    status: "pending",
   },
   {
     id: "wholesaler",
@@ -147,6 +148,7 @@ export default function AdminPurchaseProducts() {
       try {
         setLoading(true);
         const { data } = await axios.get(`${Api}${activeConfig.endpoint}`, {
+          params: activeConfig.status ? { status: activeConfig.status } : undefined,
           signal: controller.signal,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -168,7 +170,7 @@ export default function AdminPurchaseProducts() {
     loadRows();
 
     return () => controller.abort();
-  }, [activeConfig.endpoint, reloadTick]);
+  }, [activeConfig.endpoint, activeConfig.status, reloadTick]);
 
   const handleStatusChange = async (row, nextStatus) => {
     const token = getToken();
