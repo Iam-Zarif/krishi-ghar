@@ -1,0 +1,66 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+
+
+.adminLoginGradient{
+    background: rgb(4,255,35);
+background: linear-gradient(0deg, rgba(4, 255, 33, 0.1) 0%, rgba(244, 209, 8, 0) 100%);
+}
+
+.neon-stroke {
+  color: transparent; /* no fill */
+  -webkit-text-stroke: 2px #22c55e; /* stroke color (green now) */
+  text-shadow:
+    0 0 6px rgba(34, 197, 94, 0.6),
+    0 0 12px rgba(234, 197, 8, 0.5);
+  animation: neonPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+  0% {
+    text-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 12px rgba(234, 197, 8, 0.9);
+  }
+}
+.headline{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-weight: 800;
+  /* 🚀 super big on all devices */
+  font-size: clamp(100px, 22vw, 160px);
+  letter-spacing: .5px;
+}
+
+@media (max-width: 480px){
+  .headline{
+    font-size: clamp(120px, 26vw, 180px);
+  }
+}
+
+@media (max-width: 380px){
+  .headline{
+    font-size: clamp(140px, 30vw, 200px);
+  }
+}
+
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}

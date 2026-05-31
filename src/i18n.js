@@ -1,0 +1,71 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const bnTranslations = {
+  "এখানে অনুসন্ধান করুন...": "এখানে অনুসন্ধান করুন...",
+  Profile: "প্রোফাইল",
+  0: "০",
+  1: "১",
+  2: "২",
+  3: "৩",
+  4: "৪",
+  5: "৫",
+  6: "৬",
+  7: "৭",
+  8: "৮",
+  9: "৯",
+  Customers: "গ্রাহক",
+  Orders: "অর্ডার",
+  "Sell Post": "বিক্রয় পোস্ট",
+  "All Products": "সব পণ্য",
+  "Add Products": "পণ্য যোগ করুন",
+  English: "ইংরেজি",
+  Bangla: "বাংলা",
+  "Total Users": "মোট ব্যবহারকারী",
+  "Total Revenue": "মোট রাজস্ব",
+  "Total Orders": "মোট অর্ডার",
+  "Monthly Traffic": "মাসিক ট্র্যাফিক",
+  "Products Sold": "বিক্রি হওয়া পণ্য",
+  "Customer Feedback": "গ্রাহকের প্রতিক্রিয়া",
+  "Active Subscriptions": "সক্রিয় সাবস্ক্রিপশন",
+  "Total Profit": "মোট মুনাফা",
+  "Dashboard Overview": "ড্যাশবোর্ড পরিদর্শন",
+  Dashboard: "ড্যাশবোর্ড",
+  "User Growth & Revenue": "ব্যবহারকারী বৃদ্ধির সাথে রাজস্ব",
+  Jan: "জানুয়ারি",
+  Feb: "ফেব্রুয়ারি",
+  Mar: "মার্চ",
+  Apr: "এপ্রিল",
+  May: "মে",
+  Jun: "জুন",
+  Jul: "জুলাই",
+  Aug: "আগস্ট",
+  Sep: "সেপ্টেম্বর",
+  Oct: "অক্টোবর",
+  Nov: "নভেম্বর",
+  Dec: "ডিসেম্বর",
+  "1.2M Views": "১.২ মিলিয়ন ভিউ",
+  "92% Positive": "৯২% ইতিবাচক",
+  "15,672": "১৫,৬৭২",
+  "$185,920": "৳১৮৫,৯২০",
+  "7,982": "৭,৯৮২",
+  "34,872": "৩৪,৮৭২",
+  "$98,450": "৳৯৮,৪৫০",
+};
+
+i18n.use(initReactI18next).init({
+  resources: {
+    bn: {
+      translation: bnTranslations,
+    },
+  },
+  lng: "bn",
+  fallbackLng: "bn",
+  supportedLngs: ["bn"],
+  debug: false,
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+export default i18n;
