@@ -11,7 +11,6 @@ const TABS = [
     id: "supersaler",
     label: "সুপার সেলার",
     endpoint: ApiPaths.admin.viewSupersalerProduct,
-    status: "pending",
   },
   {
     id: "wholesaler",
@@ -147,8 +146,10 @@ export default function AdminPurchaseProducts() {
     const loadRows = async () => {
       try {
         setLoading(true);
+        // TODO(backend): /api/v1/admin/view-supersaler-product does not
+        // currently support ?status=pending and returns approved supersaler
+        // orders only. Keep this request unfiltered until backend support lands.
         const { data } = await axios.get(`${Api}${activeConfig.endpoint}`, {
-          params: activeConfig.status ? { status: activeConfig.status } : undefined,
           signal: controller.signal,
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -170,7 +171,7 @@ export default function AdminPurchaseProducts() {
     loadRows();
 
     return () => controller.abort();
-  }, [activeConfig.endpoint, activeConfig.status, reloadTick]);
+  }, [activeConfig.endpoint, reloadTick]);
 
   const handleStatusChange = async (row, nextStatus) => {
     const token = getToken();
