@@ -7,7 +7,6 @@ import cart from "../../../public/photos/navbar/cart.png";
 import search from "../../../public/photos/navbar/search.png";
 
 import downarrow from "../../../public/photos/auth/down-arrow.png";
-import blankUser from "../../../public/photos/common/user.png";
 
 import {
   IoMenu,
@@ -20,7 +19,6 @@ import { UserProfileContext } from "../../providers/getUserProfile/getUserProfil
 import { CiHeart, CiLogout } from "react-icons/ci";
 import axios from "axios";
 import { Api } from "../../api/API";
-import { ApiPaths } from "../../api/apiPaths";
 import { MenuItems } from "./MenuItems";
 import { FaCircleUser } from "react-icons/fa6";
 import { AiOutlineUser } from "react-icons/ai";
