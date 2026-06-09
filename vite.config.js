@@ -3,11 +3,22 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    // Keep React as a single runtime instance across lazy dashboard chunks.
+    // Without this, Vite can pre-bundle a second React copy and hooks crash with
+    // errors like: Cannot read properties of null (reading 'useState/useContext').
+    dedupe: ["react", "react-dom"],
+  },
   server: {
     hmr: false,
   },
   optimizeDeps: {
     include: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "react-router-dom",
       "prop-types",
       "react-transition-group",
       "lodash",
