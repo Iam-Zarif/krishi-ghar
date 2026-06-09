@@ -18,6 +18,14 @@ const normalizeProfileRole = (value = "") => {
   return normalized === "superseller" ? "supersaler" : normalized;
 };
 
+const resolveProfileFromResponse = (data = {}) => {
+  const key = Object.keys(data).find((item) =>
+    ["user", "consumer", "producer", "supersaler", "superseller", "wholesaler"].includes(item)
+  );
+
+  return key ? data[key] : null;
+};
+
 // eslint-disable-next-line react/prop-types
 const GetUserProfile = ({ children }) => {
   const token = Cookies.get("token") || localStorage.getItem("token");
@@ -41,46 +49,36 @@ const GetUserProfile = ({ children }) => {
     setProfileError(null);
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-   axios
-     .get(`${Api}/api/v1/${apiRole}/profile`, {
-       withCredentials: true,
-       headers: {
-         Authorization: `Bearer ${token}`,
-       },
-     })
-     .then((res) => {
-       let profileData = null;
+    axios
+      .get(`${Api}/api/v1/${apiRole}/profile`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        const profileData = resolveProfileFromResponse(res.data);
 
-       if (apiRole === "consumer" && (res.data.consumer || res.data.user)) {
-         profileData = res.data.consumer || res.data.user;
-       } else {
-         const key = Object.keys(res.data).find((k) =>
-           ["producer", "supersaler", "superseller", "wholesaler", "consumer"].includes(k)
-         );
-         profileData = key ? res.data[key] : null;
-       }
-
-       if (profileData) {
-         setUserProfile(profileData);
-       } else {
-         clearStoredSession();
-         setUserProfile(null);
-         setProfileError("Unknown user type in profile response.");
-       }
-     })
-
-     .catch((err) => {
-       const status = err.response?.status;
-       if ([401, 403, 404].includes(status)) {
-         clearStoredSession();
-       }
-       setUserProfile(null);
-       setProfileError(
-         err.response?.data?.message || "প্রোফাইল লোড করা যায়নি"
-       );
-     })
-     .finally(() => setProfileLoading(false));
-  }, [apiRole, token]);
+        if (profileData) {
+          setUserProfile(profileData);
+        } else {
+          clearStoredSession();
+          setUserProfile(null);
+          setProfileError("Unknown user type in profile response.");
+        }
+      })
+      .catch((err) => {
+        const status = err.response?.status;
+        if ([401, 403, 404].includes(status)) {
+          clearStoredSession();
+        }
+        setUserProfile(null);
+        setProfileError(
+          err.response?.data?.message || "প্রোফাইল লোড করা যায়নি"
+        );
+      })
+      .finally(() => setProfileLoading(false));
+  }, [apiRole, token, role]);
 
   const logout = async () => {
     try {
