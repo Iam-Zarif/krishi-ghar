@@ -1,13 +1,44 @@
-import { FiCalendar, FiMail, FiMapPin, FiPhone, FiUser } from "react-icons/fi";
+import { useRef } from "react";
+import { FiCalendar, FiMail, FiMapPin, FiPhone, FiUpload, FiUser } from "react-icons/fi";
+import { EditableField } from "../../../../components/common/EditableField";
 
-const ProfileTab = ({ profileForView, orderStats, formatDate, formatPrice, addresses = [] }) => {
+const ProfileTab = ({
+  profileForView,
+  orderStats,
+  formatDate,
+  formatPrice,
+  addresses = [],
+  profileForm,
+}) => {
+  const fileInputRef = useRef(null);
+  const canEdit = Boolean(profileForm);
+  const values = profileForm?.values || {};
+
+  const act = (key) => ({
+    save: () => profileForm.saveSingleField(key),
+    cancel: () => profileForm.cancelSingleField(key),
+    saving: profileForm.saving?.[key],
+    dirty: profileForm.isDirty(key),
+  });
+
+  const updateField = (key) => (value) =>
+    profileForm.setValues((prev) => ({ ...prev, [key]: value }));
+
+  const saveOnEnter = (key) => (event) => {
+    if (event.key === "Enter" && profileForm.isDirty(key)) {
+      profileForm.saveSingleField(key);
+    }
+  };
+
+  const avatar = profileForm?.avatarSrc || profileForView.avatar;
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-3xl shadow-sm border border-neutral-100 p-6 sm:p-8 flex flex-col lg:flex-row items-start gap-6">
-        <div>
-          {profileForView.avatar ? (
+        <div className="relative">
+          {avatar ? (
             <img
-              src={profileForView.avatar}
+              src={avatar}
               alt={profileForView.name}
               className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-neutral-100"
             />
@@ -16,12 +47,35 @@ const ProfileTab = ({ profileForView, orderStats, formatDate, formatPrice, addre
               <FiUser className="text-3xl sm:text-4xl" />
             </div>
           )}
+
+          {canEdit ? (
+            <>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={profileForm.imgSaving}
+                className="absolute -bottom-2 -right-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50"
+                title="ছবি আপলোড করুন"
+              >
+                <FiUpload />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={profileForm.onPickImage}
+                disabled={profileForm.imgSaving}
+                className="hidden"
+              />
+            </>
+          ) : null}
         </div>
+
         <div className="flex-1 w-full">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {profileForView.name}
+                {canEdit ? values.name || profileForView.name : profileForView.name}
               </h1>
               <p className="text-gray-500">@{profileForView.username}</p>
             </div>
@@ -29,10 +83,10 @@ const ProfileTab = ({ profileForView, orderStats, formatDate, formatPrice, addre
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-5 text-sm text-gray-700">
             <span className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
-              <FiMail className="text-emerald-600" /> {profileForView.email}
+              <FiMail className="text-emerald-600" /> {canEdit ? values.email || "দেওয়া হয়নি" : profileForView.email}
             </span>
             <span className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
-              <FiPhone className="text-emerald-600" /> {profileForView.phone}
+              <FiPhone className="text-emerald-600" /> {canEdit ? values.phone || "দেওয়া হয়নি" : profileForView.phone}
             </span>
             <span className="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2">
               <FiCalendar className="text-emerald-600" />
@@ -41,6 +95,71 @@ const ProfileTab = ({ profileForView, orderStats, formatDate, formatPrice, addre
           </div>
         </div>
       </div>
+
+      {canEdit ? (
+        <div className="bg-white rounded-3xl shadow-sm border border-neutral-100 p-6 sm:p-8 space-y-5">
+          <h2 className="text-lg font-semibold text-gray-900">প্রোফাইল তথ্য আপডেট</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <EditableField
+              label="নাম"
+              value={values.name}
+              actions={act("name")}
+              onChange={updateField("name")}
+              onKeyDown={saveOnEnter("name")}
+            />
+            <EditableField
+              label="ইমেইল"
+              type="email"
+              value={values.email}
+              actions={act("email")}
+              onChange={updateField("email")}
+              onKeyDown={saveOnEnter("email")}
+            />
+            <EditableField
+              label="মোবাইল নম্বর"
+              value={values.phone}
+              actions={act("phone")}
+              onChange={updateField("phone")}
+              onKeyDown={saveOnEnter("phone")}
+            />
+            <EditableField
+              label="এনআইডি"
+              value={values.nid}
+              actions={act("nid")}
+              onChange={updateField("nid")}
+              onKeyDown={saveOnEnter("nid")}
+            />
+            <EditableField
+              label="বিভাগ"
+              value={values.division}
+              actions={act("division")}
+              onChange={updateField("division")}
+              onKeyDown={saveOnEnter("division")}
+            />
+            <EditableField
+              label="জেলা"
+              value={values.district}
+              actions={act("district")}
+              onChange={updateField("district")}
+              onKeyDown={saveOnEnter("district")}
+            />
+            <EditableField
+              label="থানা"
+              value={values.thana}
+              actions={act("thana")}
+              onChange={updateField("thana")}
+              onKeyDown={saveOnEnter("thana")}
+            />
+            <EditableField
+              label="ঠিকানা"
+              value={values.address}
+              actions={act("address")}
+              onChange={updateField("address")}
+              onKeyDown={saveOnEnter("address")}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white rounded-2xl border border-neutral-100 p-4 shadow-sm">
