@@ -1,17 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { ApiPaths } from "../api/apiPaths";
 
+const emailOk = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const editableFields = new Set([
+  "name",
+  "email",
+  "phone",
+  "nid",
+  "division",
+  "district",
+  "thana",
+  "address",
+]);
+
 const buildProfileFields = (data = {}) => ({
   name: data.name || "",
+  email: data.email || "",
   phone: (data.phone ?? "").toString(),
+  nid: (data.nid ?? "").toString(),
+  division: data.division || "",
+  district: data.district || "",
+  thana: data.thana || "",
   address: data.address || "",
 });
 
 const initialSaving = () =>
-  Object.fromEntries(
-    Object.keys(buildProfileFields()).map((key) => [key, false])
-  );
+  Object.fromEntries(Object.keys(buildProfileFields()).map((key) => [key, false]));
 
 const resolveProfileImage = (value = "", apiRoot) => {
   const path = String(value || "").trim();
@@ -41,6 +57,11 @@ export const useProducerProfileForm = ({
     setImagePreview("");
   }, [userProfile]);
 
+  const fullAddress = useMemo(
+    () => [values.address, values.thana, values.district, values.division].filter(Boolean).join(", "),
+    [values.address, values.division, values.district, values.thana]
+  );
+
   const setFieldSaving = (key, value) =>
     setSaving((prev) => ({ ...prev, [key]: value }));
 
@@ -48,13 +69,21 @@ export const useProducerProfileForm = ({
 
   const saveSingleField = async (key) => {
     if (!isDirty(key)) return;
+    if (!editableFields.has(key)) {
+      setToast({ type: "warn", message: "এই তথ্যটি এপিআই থেকে আপডেটযোগ্য নয়" });
+      return;
+    }
+    if (key === "email" && values.email && !emailOk(values.email)) {
+      setToast({ type: "warn", message: "ইমেইল ফরম্যাট সঠিক নয়" });
+      return;
+    }
 
     setFieldSaving(key, true);
     try {
       const formData = new FormData();
       formData.append(key, values[key]);
 
-      await axios.put(
+      const { data } = await axios.put(
         `${apiRoot}${ApiPaths.producer.profile}`,
         formData,
         {
@@ -62,7 +91,7 @@ export const useProducerProfileForm = ({
         }
       );
 
-      const nextProfile = { ...(userProfile || {}) };
+      const nextProfile = data?.producer || { ...(userProfile || {}) };
       nextProfile[key] = values[key];
 
       if (typeof refreshProfile === "function") {
@@ -98,7 +127,7 @@ export const useProducerProfileForm = ({
       const fd = new FormData();
       fd.append("image", file);
 
-      const response = await axios.put(
+      const { data } = await axios.put(
         `${apiRoot}${ApiPaths.producer.profileImage}`,
         fd,
         {
@@ -106,9 +135,9 @@ export const useProducerProfileForm = ({
         }
       );
 
-      const nextProfile = { ...(userProfile || {}) };
-      if (response.data?.producer?.image) {
-        nextProfile.image = response.data.producer.image;
+      const nextProfile = data?.producer || { ...(userProfile || {}) };
+      if (data?.producer?.image || data?.image) {
+        nextProfile.image = data?.producer?.image || data.image;
       }
 
       if (typeof refreshProfile === "function") {
@@ -128,7 +157,7 @@ export const useProducerProfileForm = ({
     }
   };
 
-  const changePassword = async (currentPassword, newPassword, confirmPassword) => {
+  const changePassword = async (currentPassword, newPassword) => {
     try {
       await axios.put(
         `${apiRoot}${ApiPaths.producer.changePassword}`,
@@ -160,6 +189,7 @@ export const useProducerProfileForm = ({
     saving,
     imgSaving,
     imagePreview,
+    fullAddress,
     isDirty,
     saveSingleField,
     cancelSingleField,
