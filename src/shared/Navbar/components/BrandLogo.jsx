@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../../../public/photos/auth/brandLogo.svg";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
 import { getRoleDashboardPath } from "../../../utils/roleDashboardPath";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const BrandLogo = () => {
   const { userProfile } = useContext(UserProfileContext);
@@ -11,7 +12,7 @@ const BrandLogo = () => {
   return (
     <Link to={targetPath} className="flex items-center gap-2">
       <img
-        src={logo}
+        src={BRAND_LOGO_SRC}
         className="w-8 lg:w-12"
         alt="ব্র্যান্ড লোগো"
         loading="lazy"

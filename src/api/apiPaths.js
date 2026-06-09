@@ -86,7 +86,7 @@ export const ApiPaths = {
     ordersBuy: "/api/v1/supersaler/orders/buy",
     createProduct: "/api/v1/supersaler/product/create",
     // Backend route name is misleading; controller returns supersaler purchase/order list.
-    ownProducts: "/api/v1/supersaler/get-own-product",
+    ownProducts: "/api/v1/supersaler/my-products",
   },
   wholesaler: {
     profile: "/api/v1/wholesaler/profile",

@@ -1,7 +1,8 @@
 
 import { Link } from "react-router-dom";
-import logo from "../../../public/photos/auth/brandLogo.svg";
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const WaitForApproval = () => {
   return (
@@ -17,7 +18,7 @@ const WaitForApproval = () => {
       </p>
 
       <img
-        src={logo}
+        src={BRAND_LOGO_SRC}
         alt="অনুমোদনের জন্য অপেক্ষা"
         className="mt-6 rounded-full w-28 h-28 sm:w-40 sm:h-40 md:w-48 md:h-48 shadow-xl"
       />
@@ -52,4 +53,3 @@ export default WaitForApproval;
 //   "phone": "01822769722",
 //   "password": "admin1234"
 // }
-

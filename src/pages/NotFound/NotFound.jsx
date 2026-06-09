@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaHome, FaLeaf } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
-import logo from "../../../public/photos/auth/brandLogo.svg";
 import { usePageSeo } from "../../utils/seo";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const NotFound = () => {
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-emerald-200/50 blur-xl animate-pulse" />
           <img
-            src={logo}
+            src={BRAND_LOGO_SRC}
             alt="কৃষিঘর লোগো"
             className="relative h-24 w-24 rounded-full border-4 border-white bg-white object-contain shadow-xl"
           />

@@ -7,7 +7,8 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import logo from "../../../public/photos/auth/brandLogo.svg";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const Footer = () => {
   const location = useLocation();
@@ -26,7 +27,7 @@ const Footer = () => {
         <div className="flex-1 min-w-full sm:min-w-[200px] flex flex-col items-center sm:items-start">
           <div className="flex justify-center lg:justify-start items-center gap-2">
             <img
-              src={logo}
+              src={BRAND_LOGO_SRC}
               className="w-8 lg:w-12"
               alt="কৃষিঘর লোগো"
               loading="lazy"

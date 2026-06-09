@@ -1,8 +1,6 @@
 
 
 import { Link, useNavigate } from "react-router-dom";
-import fertilizer from "../../../../public/photos/auth/fertilizer.svg";
-import logo from "../../../../public/photos/auth/brandLogo.svg";
 import { IoIosLock } from "react-icons/io";
 import { IoIosUnlock } from "react-icons/io";
 import React, { useContext, useState } from "react";
@@ -13,6 +11,9 @@ import Cookies from "js-cookie";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
 import AuthSubmitButton from "../components/AuthSubmitButton";
 import { getRoleDashboardPath } from "../../../utils/roleDashboardPath";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
+const FERTILIZER_IMAGE_SRC = "/photos/auth/fertilizer.svg";
 
 const Login = () => {
   const { setRole, userProfile } = useContext(UserProfileContext);
@@ -81,14 +82,14 @@ const Login = () => {
       <div className="w-full text-sm grid lg:grid-cols-2 lg:justify-center h-full">
         <img
           loading="lazy"
-          src={fertilizer}
+          src={FERTILIZER_IMAGE_SRC}
           alt="সার"
           className="object-cover lg:block hidden w-full h-screen"
         />
 
         <div className="flex w-full max-w-sm mx-auto items-center justify-center h-full">
           <div className="w-full">
-            <img src={logo} className="w-28 mx-auto" alt="ব্র্যান্ড লোগো" />
+            <img src={BRAND_LOGO_SRC} className="w-28 mx-auto" alt="ব্র্যান্ড লোগো" />
 
             <p className="text-2xl font-semibold text-center mt-8 text-yellow">
               লগইন

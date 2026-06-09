@@ -9,17 +9,7 @@ import {
   FaPiggyBank,
   FaCog,
 } from "react-icons/fa";
-import agri from "../../../../public/photos/consumer/leftnav/agri.svg";
-import farmProdducts from "../../../../public/photos/consumer/leftnav/farmProducts.svg";
-import rice from "../../../../public/photos/consumer/leftnav/rice.svg";
-import ginger from "../../../../public/photos/consumer/leftnav/ginger.svg";
-import potato from "../../../../public/photos/consumer/leftnav/potato.svg";
-import wheat from "../../../../public/photos/consumer/leftnav/wheat.svg";
-import onion from "../../../../public/photos/consumer/leftnav/onion.svg";
-import garlic from "../../../../public/photos/consumer/leftnav/garlic.svg";
-import paddy from "../../../../public/photos/consumer/leftnav/paddy.svg";
-import vegetable from "../../../../public/photos/consumer/leftnav/vegetable.svg";
-import downArrow from "../../../../public/photos/auth/down-arrow.png";
+import { IoChevronDown } from "react-icons/io5";
 import React from "react";
 const ConsumerLeftNav = () => {
       const location = useLocation();
@@ -58,14 +48,14 @@ const ConsumerLeftNav = () => {
       };
 
       const agricultureItems = [
-        { to: "/rice", src: rice, label: "চাল" },
-        { to: "/ginger", src: ginger, label: "আদা" },
-        { to: "/potato", src: potato, label: "আলু" },
-        { to: "/wheat", src: wheat, label: "গম" },
-        { to: "/onion", src: onion, label: "পেঁয়াজ" },
-        { to: "/garlic", src: garlic, label: "রসুন" },
-        { to: "/paddy", src: paddy, label: "ধান" },
-        { to: "/vegetable", src: vegetable, label: "সবজি" },
+        { to: "/rice", icon: <FaSeedling style={{ color: "green" }} />, label: "চাল" },
+        { to: "/ginger", icon: <FaCarrot style={{ color: "#FF5733" }} />, label: "আদা" },
+        { to: "/potato", icon: <FaTruck style={{ color: "#8B4513" }} />, label: "আলু" },
+        { to: "/wheat", icon: <FaSeedling style={{ color: "#9CA13A" }} />, label: "গম" },
+        { to: "/onion", icon: <FaSeedling style={{ color: "#B565A7" }} />, label: "পেঁয়াজ" },
+        { to: "/garlic", icon: <FaSeedling style={{ color: "#7A7A58" }} />, label: "রসুন" },
+        { to: "/paddy", icon: <FaSeedling style={{ color: "#4A8F2A" }} />, label: "ধান" },
+        { to: "/vegetable", icon: <FaCarrot style={{ color: "#2E8B57" }} />, label: "সবজি" },
       ];
 
       const farmItems = [
@@ -214,16 +204,14 @@ const ConsumerLeftNav = () => {
               onClick={toggleAgriculture}
             >
               <div className="flex items-center gap-2">
-                <img src={agri} className="w-6" loading="lazy" alt="" />
+                <FaSeedling className="h-6 w-6 text-green" aria-hidden="true" />
                 <p className="text-lg">কৃষি</p>
               </div>
-              <img
-                src={downArrow}
-                className={`w-6 transition-transform duration-300 ${
+              <IoChevronDown
+                className={`text-xl transition-transform duration-300 ${
                   isAgricultureOpen ? "rotate-180" : ""
                 }`}
-                loading="lazy"
-                alt="ড্রপডাউন তীর"
+                aria-hidden="true"
               />
             </div>
 
@@ -242,7 +230,7 @@ const ConsumerLeftNav = () => {
                       : ""
                   }`}
                 >
-                  <img src={item.src} className="w-5" loading="lazy" alt="" />
+                  <div className="text-lg">{item.icon}</div>
                   <p>{item.label}</p>
                 </Link>
               ))}
@@ -254,21 +242,14 @@ const ConsumerLeftNav = () => {
               onClick={toogleFarmProducts}
             >
               <div className="flex items-center gap-2">
-                <img
-                  src={farmProdducts}
-                  className="w-6"
-                  loading="lazy"
-                  alt=""
-                />
+                <FaTruck className="h-6 w-6 text-green" aria-hidden="true" />
                 <p className="text-lg">খামার পণ্য</p>
               </div>
-              <img
-                src={downArrow}
-                className={`w-6 transition-transform duration-300 ${
+              <IoChevronDown
+                className={`text-xl transition-transform duration-300 ${
                   farmProducts ? "rotate-180" : ""
                 }`}
-                loading="lazy"
-                alt="ড্রপডাউন তীর"
+                aria-hidden="true"
               />
             </div>
 
@@ -301,16 +282,14 @@ const ConsumerLeftNav = () => {
                 onClick={toogleFruits}
               >
                 <div className="flex items-center gap-2">
-                  <img src={agri} className="w-6" loading="lazy" alt="" />
+                  <FaAppleAlt className="h-6 w-6 text-green" aria-hidden="true" />
                   <p className="text-lg">ফলমূল</p>
                 </div>
-                <img
-                  src={downArrow}
-                  className={`w-6 transition-transform duration-300 ${
+                <IoChevronDown
+                  className={`text-xl transition-transform duration-300 ${
                     fruits ? "rotate-180" : ""
                   }`}
-                  loading="lazy"
-                  alt="ড্রপডাউন তীর"
+                  aria-hidden="true"
                 />
               </div>
 
@@ -342,16 +321,14 @@ const ConsumerLeftNav = () => {
                 onClick={toogleAgroCare}
               >
                 <div className="flex items-center gap-2">
-                  <img src={agri} className="w-6" loading="lazy" alt="" />
+                  <FaCog className="h-6 w-6 text-green" aria-hidden="true" />
                   <p className="text-lg">অ্যাগ্রোকেয়ার</p>
                 </div>
-                <img
-                  src={downArrow}
-                  className={`w-6 transition-transform duration-300 ${
+                <IoChevronDown
+                  className={`text-xl transition-transform duration-300 ${
                     agroCare ? "rotate-180" : ""
                   }`}
-                  loading="lazy"
-                  alt="ড্রপডাউন তীর"
+                  aria-hidden="true"
                 />
               </div>
 

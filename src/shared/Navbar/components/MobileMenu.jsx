@@ -1,18 +1,16 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { IoMenu, IoClose, IoChevronDown } from "react-icons/io5";
+import { IoMenu, IoClose, IoChevronDown, IoLanguage } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
 import axios from "axios";
 import { Api } from "../../../api/API";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
 import { useLanguage } from "../../../Provider/LanguageContext/LanguageContext";
-import logo from "../../../../public/photos/auth/brandLogo.svg";
-import bd from "../../../../public/photos/navbar/bd.png";
-import eng from "../../../../public/photos/navbar/eng.png";
-import downarrow from "../../../../public/photos/auth/down-arrow.png";
 import SearchBar from "./SearchBar";
 import { MenuItems } from "../MenuItems";
 import { getRoleDashboardPath } from "../../../utils/roleDashboardPath";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const MobileMenu = () => {
   const { userProfile, profileLoading, logout } = useContext(UserProfileContext);
@@ -107,7 +105,7 @@ const MobileMenu = () => {
       >
         <div className="sticky top-0 bg-white/95 backdrop-blur border-b p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={logo} className="w-8" alt="ব্র্যান্ড লোগো" />
+            <img src={BRAND_LOGO_SRC} className="w-8" alt="ব্র্যান্ড লোগো" />
             <span className="font-semibold">মেনু</span>
           </div>
           <button onClick={() => setMenuOpen(false)} aria-label="বন্ধ করুন">
@@ -151,15 +149,14 @@ const MobileMenu = () => {
               className="border rounded-lg inline-flex gap-2 bg-gray-50 items-center border-gray-400 px-2 py-1"
               onClick={toggleLanguageDropdown}
             >
-              <img
-                src={language === "en" ? eng : bd}
-                className="w-5"
-                alt="পতাকা"
-              />
+              <IoLanguage className="text-lg text-green" aria-hidden="true" />
               <p className="text-sm">
                 {language === "en" ? "ইংরেজি" : "বাংলা"}
               </p>
-              <img src={downarrow} className="w-4" alt="" />
+              <IoChevronDown
+                className={`text-base transition-transform ${languageDropdown ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
             </div>
           </div>
         )}
@@ -248,17 +245,20 @@ const MobileMenu = () => {
 
         {!profileLoading && userProfile && (
           <div className="border-t mt-2">
-            {MenuItems.map((item, index) => (
-              <Link
-                key={index}
-                to={item.path}
-                className="flex px-4 items-center gap-3 py-4 rounded-lg hover:bg-gray-100 transition-all"
-                onClick={() => setMenuOpen(false)}
-              >
-                <img src={item.icon} className="w-5" alt={item.name} />
-                <p className="text-[16px]">{item.name}</p>
-              </Link>
-            ))}
+            {MenuItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={index}
+                  to={item.path}
+                  className="flex px-4 items-center gap-3 py-4 rounded-lg hover:bg-gray-100 transition-all"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Icon className="h-5 w-5 text-green" aria-hidden="true" />
+                  <p className="text-[16px]">{item.name}</p>
+                </Link>
+              );
+            })}
             <div
               onClick={handleLogout}
               className="flex cursor-pointer items-center gap-3 font-light px-4 py-2 text-red-700 hover:bg-red-700 rounded-b-lg hover:text-white"

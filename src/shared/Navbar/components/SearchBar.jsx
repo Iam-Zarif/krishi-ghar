@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { IoSearchOutline, IoClose } from "react-icons/io5";
 import axios from "axios";
 import { Api } from "../../../api/API";
-import search from "../../../../public/photos/navbar/search.png";
 import {
   normalizeSearchTerm,
   readRecentSearches,
@@ -224,10 +223,9 @@ const SearchBar = ({ mobile = false, menuOpen, setMenuOpen }) => {
 
   return (
     <div ref={searchRef} className={`relative ${mobile ? "" : "hidden lg:block"}`}>
-      <img
-        src={search}
-        className="w-5 absolute top-3 opacity-60 left-3"
-        alt=""
+      <IoSearchOutline
+        className="pointer-events-none absolute left-3 top-3 text-xl text-gray-500"
+        aria-hidden="true"
       />
       <form
         onSubmit={(e) => {

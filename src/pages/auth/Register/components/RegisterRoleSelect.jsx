@@ -1,4 +1,4 @@
-import downArrow from "../../../../../public/photos/auth/down-arrow.png";
+import { IoChevronDown } from "react-icons/io5";
 import { REGISTER_ROLES, ROLE_LABELS } from "../registerFields";
 
 export default function RegisterRoleSelect({
@@ -32,7 +32,10 @@ export default function RegisterRoleSelect({
         <p className="opacity-60">
           {selectedRole ? ROLE_LABELS[selectedRole] : "ভূমিকা নির্বাচন করুন"}
         </p>
-        <img src={downArrow} className="w-6" loading="lazy" alt="ড্রপডাউন" />
+        <IoChevronDown
+          className={`text-xl transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
 
         {dropdownOpen && (
           <div className="absolute w-full z-[9999] top-12 left-0 bg-white border rounded-xl border-gray-300">

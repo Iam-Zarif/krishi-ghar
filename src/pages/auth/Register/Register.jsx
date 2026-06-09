@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../../../public/photos/auth/brandLogo.svg";
-import bdLocationData from "../../../../public/photos/location.json";
+import bdLocationData from "../../../data/location.json";
 import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Api } from "../../../api/API";
@@ -19,6 +18,8 @@ import {
   INITIAL_REGISTER_FORM,
   PASSWORD_FIELDS,
 } from "./registerFields";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const ROLE_REQUIRES_TRADE_LICENSE = ["producer", "supersaler", "wholesaler"];
 
@@ -339,7 +340,7 @@ const Register = () => {
       <Toaster />
 
       <div className="w-full mx-auto">
-        <img src={logo} className="w-24 mx-auto" alt="লোগো" />
+        <img src={BRAND_LOGO_SRC} className="w-24 mx-auto" alt="লোগো" />
 
         <p className="text-center text-2xl opacity-80 font-semibold mt-5">
           অ্যাকাউন্ট রেজিস্ট্রেশন

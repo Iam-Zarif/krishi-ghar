@@ -1,15 +1,14 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { FaCircleUser } from "react-icons/fa6";
+import { FaShoppingCart } from "react-icons/fa";
 import { AiOutlineUser } from "react-icons/ai";
 import { BiSupport } from "react-icons/bi";
 import { CiHeart, CiLogout } from "react-icons/ci";
 import { useShopStateCounts } from "../../../hooks/useShopStateCounts";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
 import { Api } from "../../../api/API";
-import cart from "../../../../public/photos/navbar/cart.png";
-import blankUser from "../../../../public/photos/common/user.png";
 import ChatSystem from "../../../components/common/ChatSystem";
 
 const resolveProfileImage = (value = "") => {
@@ -24,9 +23,14 @@ const UserActions = ({ profileLoading, setMenuOpen }) => {
   const { userProfile, logout } = useContext(UserProfileContext);
   const [profileToogle, setprofileToogle] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [profileImageFailed, setProfileImageFailed] = useState(false);
   const { cartCount, wishlistCount } = useShopStateCounts(userProfile);
 
   const handleProfileToogle = () => setprofileToogle(!profileToogle);
+
+  useEffect(() => {
+    setProfileImageFailed(false);
+  }, [userProfile?.image]);
 
   const isLoggedIn = !!userProfile;
   const isProducer = userProfile?.role === "producer";
@@ -103,11 +107,9 @@ const UserActions = ({ profileLoading, setMenuOpen }) => {
           )}
 
           <Link to={cartPath} className="relative hidden lg:block">
-            <img
-              src={cart}
-              className="w-6 cursor-pointer"
-              alt="কার্ট"
-              loading="lazy"
+            <FaShoppingCart
+              className="text-2xl cursor-pointer text-gray-700"
+              aria-label="কার্ট"
             />
             {cartCount > 0 && (
               <span
@@ -122,15 +124,13 @@ const UserActions = ({ profileLoading, setMenuOpen }) => {
       )}
 
       <div className="relative">
-        {userProfile?.image ? (
+        {userProfile?.image && !profileImageFailed ? (
           <img
             src={resolveProfileImage(userProfile.image)}
             alt="প্রোফাইল"
             className="w-9 h-9 rounded-full object-cover cursor-pointer border-2 border-gray-200"
             onClick={handleProfileToogle}
-            onError={(e) => {
-              e.currentTarget.src = blankUser;
-            }}
+            onError={() => setProfileImageFailed(true)}
           />
         ) : (
           <FaCircleUser

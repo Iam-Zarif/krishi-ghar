@@ -11,8 +11,9 @@ import {
   FaTimes,
   FaUserTie,
 } from "react-icons/fa";
-import logo from "../../../../../public/photos/auth/brandLogo.svg";
 import { normalizeApiRole } from "../../../../api/resellerProducts";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 export default function ResellerProductCard({
   product,
@@ -75,7 +76,7 @@ export default function ResellerProductCard({
             }}
           />
           <img
-            src={logo}
+            src={BRAND_LOGO_SRC}
             alt=""
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 m-auto h-20 w-20 opacity-[0.04]"

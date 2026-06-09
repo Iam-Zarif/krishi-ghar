@@ -1,5 +1,5 @@
-import blankUser from "../../../../public/photos/common/user.png";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FaCircleUser } from "react-icons/fa6";
 import { FiUpload } from "react-icons/fi";
 
 export const formatProfileDate = (value) => {
@@ -43,7 +43,9 @@ export const ProfileShell = ({
   children,
 }) => {
   const fileInputRef = useRef(null);
+  const [imageFailed, setImageFailed] = useState(false);
   const canUploadImage = typeof onImageChange === "function";
+  const showImage = Boolean(image) && !imageFailed;
   const statusLabel =
     status === "approved"
       ? "অনুমোদিত"
@@ -54,6 +56,10 @@ export const ProfileShell = ({
       : status === "inactive"
       ? "নিষ্ক্রিয়"
       : "অপেক্ষমাণ";
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [image]);
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -90,11 +96,18 @@ export const ProfileShell = ({
       <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-center">
         <div className="relative flex items-center gap-4">
           <div className="relative">
-            <img
-              src={image || blankUser}
-              alt={name || "প্রোফাইল"}
-              className="h-24 w-24 rounded-full border-4 border-gray-100 object-cover bg-gray-50"
-            />
+            {showImage ? (
+              <img
+                src={image}
+                alt={name || "প্রোফাইল"}
+                className="h-24 w-24 rounded-full border-4 border-gray-100 object-cover bg-gray-50"
+                onError={() => setImageFailed(true)}
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-gray-100 bg-gray-50 text-gray-400">
+                <FaCircleUser className="h-16 w-16" aria-hidden="true" />
+              </div>
+            )}
             {canUploadImage && (
               <>
                 <button

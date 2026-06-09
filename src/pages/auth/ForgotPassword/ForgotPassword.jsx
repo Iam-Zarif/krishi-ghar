@@ -1,10 +1,11 @@
 import React, { useState, useContext } from "react";
-import logo from "../../../../public/photos/auth/brandLogo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import AuthSubmitButton from "../components/AuthSubmitButton";
 import { UserProfileContext } from "../../../providers/getUserProfile/getUserProfile";
 import { getRoleDashboardPath } from "../../../utils/roleDashboardPath";
+
+const BRAND_LOGO_SRC = "/photos/auth/brandLogo.svg";
 
 const ForgotPassword = () => {
   const { userProfile } = useContext(UserProfileContext);
@@ -65,7 +66,7 @@ const ForgotPassword = () => {
     <div className="flex adminLoginGradient w-full pb-16 lg:pb-0 items-center lg:h-screen justify-center lg:mt-0 mt-8">
       <Toaster />
       <div className="w-full mx-auto">
-        <img src={logo} className="w-28 mx-auto" alt="ব্র্যান্ড লোগো" />
+        <img src={BRAND_LOGO_SRC} className="w-28 mx-auto" alt="ব্র্যান্ড লোগো" />
         <p className="text-center text-2xl opacity-80 font-semibold mt-5">
           পাসওয়ার্ড ভুলে গেছেন
         </p>

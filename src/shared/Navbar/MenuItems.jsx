@@ -1,19 +1,21 @@
-import profile from "../../../public/photos/dashboard/producer/Profile.svg";
-import allProducts from "../../../public/photos/dashboard/producer/allProducts.svg";
-import postProduct from "../../../public/photos/dashboard/producer/postProduct.svg";
-import cart from "../../../public/photos/navbar/cart.png";
+import {
+  FaBoxOpen,
+  FaClipboardList,
+  FaPlusCircle,
+  FaUserCircle,
+} from "react-icons/fa";
 
 export const MenuItems = [
-  { name: "প্রোফাইল", path: "/dashboard/producerProfile", icon: profile },
-  { name: "বিক্রয় পোস্ট", path: "/dashboard/producerSellPost", icon: cart },
+  { name: "প্রোফাইল", path: "/dashboard/producerProfile", icon: FaUserCircle },
+  { name: "বিক্রয় পোস্ট", path: "/dashboard/producerSellPost", icon: FaClipboardList },
   {
     name: "সকল পণ্য",
     path: "/dashboard/producerAllProducts",
-    icon: allProducts,
+    icon: FaBoxOpen,
   },
   {
     name: "পণ্য যোগ করুন",
     path: "/dashboard/producerAddProduct",
-    icon: postProduct,
+    icon: FaPlusCircle,
   },
 ];
