@@ -9,7 +9,6 @@ const App = lazy(() => import("../App"));
 const Login = lazy(() => import("../pages/auth/Login/Login"));
 const Register = lazy(() => import("../pages/auth/Register/Register"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword/ForgotPassword"));
-const BDLocationDropdown = lazy(() => import("../../BDLocationDropdown"));
 const Home = lazy(() => import("../pages/Home/Home"));
 const ProducerDashboard = lazy(() => import("../pages/dashboard/Producer/ProducerDashboard/ProducerDashboard"));
 const ProducerProfile = lazy(() => import("../pages/dashboard/Producer/ProducerProfile/ProducerProfile"));
@@ -375,10 +374,6 @@ export const router = createBrowserRouter([
         element: withSuspense(<AdminPurchaseProducts />),
       },
 
-      {
-        path: "/location",
-        element: withSuspense(<BDLocationDropdown />),
-      },
       {
         path: "*",
         element: withSuspense(<NotFound />),
