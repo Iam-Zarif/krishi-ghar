@@ -39,6 +39,9 @@ export default function ResellerApprovedProductsView({
           ...meta,
           title: "সুপারসেলারের অনুমোদিত বাল্ক পণ্য",
           empty: "এখনও কোনো সুপারসেলারের অনুমোদিত বাল্ক পণ্য পাওয়া যায়নি",
+          actionLabel: "অর্ডার",
+          busyLabel: "অর্ডার হচ্ছে…",
+          doneLabel: "অর্ডার হয়েছে",
         }
       : meta;
   const searchPlaceholder =
@@ -116,10 +119,10 @@ export default function ResellerApprovedProductsView({
                 product={product}
                 busy={!!busyMap[product._id]}
                 onSell={handleSell}
-                showSellAction={meta.showSellAction}
-                actionLabel={meta.actionLabel}
-                busyLabel={meta.busyLabel}
-                doneLabel={meta.doneLabel}
+                showSellAction={displayMeta.showSellAction}
+                actionLabel={displayMeta.actionLabel}
+                busyLabel={displayMeta.busyLabel}
+                doneLabel={displayMeta.doneLabel}
                 viewKey={viewKey}
                 role={role}
               />

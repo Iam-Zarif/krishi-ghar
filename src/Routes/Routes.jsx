@@ -27,6 +27,7 @@ const ProductsDynamic = lazy(() => import("../pages/ProductsDynamic/ProductsDyna
 const WholesalerProducerProducts = lazy(() => import("../pages/dashboard/wholesaler/WholesalerProducerProducts/WholesalerProducerProducts"));
 const WholesalerProfile = lazy(() => import("../pages/dashboard/wholesaler/WholesalerProfile/WholesalerProfile"));
 const WholesalerCart = lazy(() => import("../pages/dashboard/wholesaler/WholesalerCart/WholesalerCart"));
+const WholesalerOrders = lazy(() => import("../pages/dashboard/wholesaler/WholesalerOrders/WholesalerOrders"));
 const SupersellerCart = lazy(() => import("../pages/dashboard/supersaler/SupersellerCart"));
 const SupersellerProducerProducts = lazy(() => import("../pages/dashboard/supersaler/SupersellerProducerProducts/SupersellerProducerProducts"));
 const SupersalerProfile = lazy(() => import("../pages/dashboard/supersaler/SupersalerProfile/SupersalerProfile"));
@@ -283,7 +284,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "orders",
-            element: <Navigate to="/dashboard/wholesaler/producer-products" replace />,
+            element: withSuspense(<WholesalerOrders />),
           },
           {
             path: "support",

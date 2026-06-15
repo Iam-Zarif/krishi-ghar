@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import {
   createSellPostForRole,
+  createWholesalerBulkOrder,
   getApprovedProductsForRole,
   getBulkPostsForRole,
   getOwnProductsForSupersaler,
@@ -31,6 +32,7 @@ export default function useResellerApprovedProducts({
   const [error, setError] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
   const [busyMap, setBusyMap] = useState({});
+  const apiRole = normalizeApiRole(role);
 
   const meta =
     VIEW_META[sourceKey] || VIEW_META[viewKey] || VIEW_META["producer-products"];
@@ -49,7 +51,6 @@ export default function useResellerApprovedProducts({
     setLoading(true);
     setError("");
 
-    const apiRole = normalizeApiRole(role);
     const loader =
       sourceKey === "producer-products" && apiRole === "supersaler"
         ? getProducerApprovedProductsForSupersaler
@@ -59,6 +60,8 @@ export default function useResellerApprovedProducts({
         ? getOwnProductsForSupersaler
         : sourceKey === "all-products" && apiRole === "supersaler"
         ? getOwnProductsForSupersaler
+        : sourceKey === "producer-products" && apiRole === "wholesaler"
+        ? getBulkPostsForRole
         : sourceKey === "all-products"
         ? getBulkPostsForRole
         : sourceKey === "sell-post" && apiRole === "wholesaler"
@@ -123,6 +126,27 @@ export default function useResellerApprovedProducts({
     setBusyMap((prev) => ({ ...prev, [product._id]: true }));
     try {
       if (viewKey === "producer-products") {
+        if (apiRole === "wholesaler") {
+          await toast.promise(
+            createWholesalerBulkOrder({
+              token,
+              payload: {
+                sellPostId: product._id,
+                quantity: Number(sellPostPayload?.quantity || 1),
+                notes: sellPostPayload?.notes || "",
+              },
+            }),
+            {
+              loading: "অর্ডার তৈরি হচ্ছে…",
+              success: (data) => data?.message || "অর্ডার তৈরি হয়েছে",
+              error: (err) =>
+                err?.response?.data?.message || "অর্ডার তৈরি করা যায়নি",
+            }
+          );
+          setReloadTick((prev) => prev + 1);
+          return;
+        }
+
         await toast.promise(
           addProductToCart({
             productId: product._id,

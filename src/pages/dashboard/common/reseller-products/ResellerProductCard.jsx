@@ -32,10 +32,14 @@ export default function ResellerProductCard({
     quantity: product.quantity || 1,
     unit: product.unit || "kg",
     sellingPricePerKg: product.pricePerKg || product.priceNumber || product.price || "",
+    notes: "",
   });
   const unitLabel = product.unit || "kg";
+  const apiRole = normalizeApiRole(role);
+  const isWholesalerOrderAction =
+    apiRole === "wholesaler" && viewKey === "producer-products";
   const producerLabel =
-    normalizeApiRole(role) === "wholesaler" ? "সুপারসেলার" : "উৎপাদক";
+    apiRole === "wholesaler" ? "সুপারসেলার" : "উৎপাদক";
   const quantityLabel =
     product.quantity || product.quantity === 0
       ? `${Number(product.quantity).toLocaleString("bn-BD")} ${unitLabel}`
@@ -49,6 +53,7 @@ export default function ResellerProductCard({
       unit: product.unit || "kg",
       sellingPricePerKg:
         product.pricePerKg || product.priceNumber || product.price || "",
+      notes: "",
     });
   }, [product.price, product.priceNumber, product.pricePerKg, product.quantity, product.unit]);
 
@@ -135,7 +140,7 @@ export default function ResellerProductCard({
             <button
               type="button"
               onClick={() =>
-                viewKey === "sell-post"
+                viewKey === "sell-post" || isWholesalerOrderAction
                   ? setSellPostOpen(true)
                   : onSell(product, sellPostForm)
               }
@@ -158,7 +163,11 @@ export default function ResellerProductCard({
                 </>
               ) : (
                 <>
-                  {viewKey === "sell-post" ? <FaStore /> : <FaShoppingCart />}
+                  {viewKey === "sell-post" || isWholesalerOrderAction ? (
+                    <FaStore />
+                  ) : (
+                    <FaShoppingCart />
+                  )}
                   <span>{actionLabel || "ক্রেতার জন্য প্রকাশ করুন"}</span>
                 </>
               )}
@@ -167,7 +176,7 @@ export default function ResellerProductCard({
         </div>
       </div>
 
-      {sellPostOpen && viewKey === "sell-post" ? (
+      {sellPostOpen && (viewKey === "sell-post" || isWholesalerOrderAction) ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <form
             onSubmit={handleSellPostSubmit}
@@ -176,7 +185,7 @@ export default function ResellerProductCard({
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  সেল পোস্ট তৈরি করুন
+                  {isWholesalerOrderAction ? "বাল্ক অর্ডার করুন" : "সেল পোস্ট তৈরি করুন"}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 line-clamp-2">
                   {product.productName || "নামহীন পণ্য"}
@@ -193,24 +202,26 @@ export default function ResellerProductCard({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <label className="col-span-2 text-xs font-medium text-gray-600">
-                ধরন
-                <select
-                  value={sellPostForm.sellType}
-                  onChange={(e) =>
-                    setSellPostForm((prev) => ({
-                      ...prev,
-                      sellType: e.target.value,
-                    }))
-                  }
-                  className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green"
-                >
-                  <option value="bulk">বাল্ক</option>
-                  <option value="retail">রিটেইল</option>
-                </select>
-              </label>
+              {!isWholesalerOrderAction ? (
+                <label className="col-span-2 text-xs font-medium text-gray-600">
+                  ধরন
+                  <select
+                    value={sellPostForm.sellType}
+                    onChange={(e) =>
+                      setSellPostForm((prev) => ({
+                        ...prev,
+                        sellType: e.target.value,
+                      }))
+                    }
+                    className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green"
+                  >
+                    <option value="bulk">বাল্ক</option>
+                    <option value="retail">রিটেইল</option>
+                  </select>
+                </label>
+              ) : null}
 
-              <label className="text-xs font-medium text-gray-600">
+              <label className={isWholesalerOrderAction ? "col-span-2 text-xs font-medium text-gray-600" : "text-xs font-medium text-gray-600"}>
                 পরিমাণ
                 <input
                   type="number"
@@ -227,7 +238,8 @@ export default function ResellerProductCard({
                 />
               </label>
 
-              <label className="text-xs font-medium text-gray-600">
+              {!isWholesalerOrderAction ? (
+                <label className="text-xs font-medium text-gray-600">
                 ইউনিট
                 <select
                   value={sellPostForm.unit}
@@ -243,22 +255,41 @@ export default function ResellerProductCard({
                   <option value="ton">ton</option>
                 </select>
               </label>
+              ) : null}
 
-              <label className="col-span-2 text-xs font-medium text-gray-600">
-                প্রতি কেজি বিক্রয় মূল্য
-                <input
-                  type="number"
-                  min="1"
-                  value={sellPostForm.sellingPricePerKg}
-                  onChange={(e) =>
-                    setSellPostForm((prev) => ({
-                      ...prev,
-                      sellingPricePerKg: e.target.value,
-                    }))
-                  }
-                  className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green"
-                />
-              </label>
+              {!isWholesalerOrderAction ? (
+                <label className="col-span-2 text-xs font-medium text-gray-600">
+                  প্রতি কেজি বিক্রয় মূল্য
+                  <input
+                    type="number"
+                    min="1"
+                    value={sellPostForm.sellingPricePerKg}
+                    onChange={(e) =>
+                      setSellPostForm((prev) => ({
+                        ...prev,
+                        sellingPricePerKg: e.target.value,
+                      }))
+                    }
+                    className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green"
+                  />
+                </label>
+              ) : (
+                <label className="col-span-2 text-xs font-medium text-gray-600">
+                  নোট
+                  <textarea
+                    rows={3}
+                    value={sellPostForm.notes}
+                    onChange={(e) =>
+                      setSellPostForm((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    placeholder="ডেলিভারি বা অর্ডার নোট"
+                    className="mt-1 w-full resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green"
+                  />
+                </label>
+              )}
             </div>
 
             <div className="mt-5 flex items-center justify-end gap-3">

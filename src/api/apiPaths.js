@@ -83,7 +83,8 @@ export const ApiPaths = {
     sslFail: "/api/v1/supersaler/ssl-fail",
     sslCancel: "/api/v1/supersaler/ssl-cancel",
     checkoutCod: "/api/v1/supersaler/cart/checkout/cod",
-    ordersBuy: "/api/v1/supersaler/orders/buy",
+    ordersBuy: "/api/v1/supersaler/get-supersaler-orders",
+    purchasedProducts: "/api/v1/supersaler/get-supersaler-purchased-products",
     createProduct: "/api/v1/supersaler/product/create",
     // Backend route name is misleading; controller returns supersaler purchase/order list.
     ownProducts: "/api/v1/supersaler/my-products",
@@ -96,6 +97,11 @@ export const ApiPaths = {
     approvedProducts: "/api/v1/wholesaler/products/approved",
     sellProduct: (productId) => `/api/v1/wholesaler/products/sell/${productId}`,
     bulkPosts: "/api/v1/wholesaler/bulk-posts",
+    bulkPostDetails: (postId) => `/api/v1/wholesaler/bulk-posts/${postId}`,
+    createBulkOrder: "/api/v1/wholesaler/orders",
+    myOrders: "/api/v1/wholesaler/orders/my-orders",
+    orderProducts: "/api/v1/wholesaler/orders/products",
+    payOrder: (orderId) => `/api/v1/wholesaler/orders/pay/${orderId}`,
   },
   consumer: {
     profile: "/api/v1/consumer/profile",

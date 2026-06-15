@@ -219,6 +219,46 @@ const normalizeSupersalerOrderSummary = (order = {}) => {
 const normalizeSupersalerOrderSummaries = (orders = []) =>
   orders.map(normalizeSupersalerOrderSummary);
 
+const normalizePurchasedSupersalerProduct = (product = {}) =>
+  normalizeResellerOwnedProduct({
+    ...product,
+    _id: product?._id || product?.id,
+    detailProductId: product?._id || product?.id,
+    quantity: product?.purchasedQuantity ?? product?.quantity,
+    price: product?.purchasedPrice ?? product?.price,
+    status: product?.status || "approved",
+    orderId: product?.purchasedFromOrder,
+    orderStatus: "paid",
+    paymentStatus: "paid",
+    purchasedAt: product?.purchasedAt || product?.updatedAt || product?.createdAt,
+    isPurchased: true,
+    isSelling: Boolean(product?.isSelling),
+  });
+
+const normalizeWholesalerOrderProduct = (row = {}) => {
+  const product = row?.product && typeof row.product === "object" ? row.product : {};
+
+  return normalizeResellerOwnedProduct({
+    ...product,
+    _id: row?.orderId || product?._id || product?.id,
+    detailProductId: product?._id || product?.id,
+    productName: product?.productName || row?.productName || "নামহীন পণ্য",
+    image: product?.image,
+    category: product?.category,
+    producer: row?.producer,
+    quantity: row?.quantity,
+    price: row?.unitPrice ?? row?.totalAmount ?? product?.price,
+    status: row?.orderStatus || "pending",
+    createdAt: row?.createdAt,
+    updatedAt: row?.updatedAt,
+    orderId: row?.orderId,
+    orderStatus: row?.orderStatus,
+    totalAmount: row?.totalAmount,
+    sellPost: row?.sellPost,
+    isPurchased: true,
+  });
+};
+
 export const getApprovedProductsForRole = async ({
   role,
   token,
@@ -249,10 +289,14 @@ export const getProducerApprovedProductsForSupersaler = async ({
 };
 
 export const getPurchasedProductsForSupersaler = async ({ token, signal }) => {
-  const res = await axios.get(`${Api}${ApiPaths.supersaler.ownProducts}`, {
+  const res = await axios.get(`${Api}${ApiPaths.supersaler.purchasedProducts}`, {
     signal,
     headers: authHeaders(token),
   });
+
+  if (Array.isArray(res.data?.products)) {
+    return res.data.products.map(normalizePurchasedSupersalerProduct);
+  }
 
   const orders = Array.isArray(res.data?.orders) ? res.data.orders : [];
   const activeOrders = orders.filter(
@@ -263,19 +307,50 @@ export const getPurchasedProductsForSupersaler = async ({ token, signal }) => {
 };
 
 export const getPurchasedProductsForWholesaler = async ({ token, signal }) => {
-  const res = await axios.get(`${Api}${ApiPaths.order.list}?limit=100`, {
+  const res = await axios.get(`${Api}${ApiPaths.wholesaler.orderProducts}`, {
     signal,
     headers: authHeaders(token),
   });
 
-  const orders = Array.isArray(res.data?.data?.orders)
-    ? res.data.data.orders
-    : [];
-  const activeOrders = orders.filter(
-    (order) => String(order?.orderStatus || "").toLowerCase() !== "cancelled"
+  const products = Array.isArray(res.data?.products) ? res.data.products : [];
+  const activeProducts = products.filter(
+    (product) => String(product?.orderStatus || "").toLowerCase() !== "cancelled"
   );
 
-  return normalizeSupersalerOrderProducts(activeOrders, { dedupe: true });
+  return activeProducts.map(normalizeWholesalerOrderProduct);
+};
+
+export const createWholesalerBulkOrder = async ({ token, payload }) => {
+  const res = await axios.post(
+    `${Api}${ApiPaths.wholesaler.createBulkOrder}`,
+    {
+      sellPostId: payload.sellPostId,
+      quantity: Number(payload.quantity || 1),
+      notes: payload.notes || "",
+    },
+    { headers: authHeaders(token) }
+  );
+
+  return res.data;
+};
+
+export const payWholesalerOrder = async ({ token, orderId }) => {
+  const res = await axios.put(
+    `${Api}${ApiPaths.wholesaler.payOrder(orderId)}`,
+    {},
+    { headers: authHeaders(token) }
+  );
+
+  return res.data;
+};
+
+export const getWholesalerOrders = async ({ token, signal }) => {
+  const res = await axios.get(`${Api}${ApiPaths.wholesaler.myOrders}`, {
+    signal,
+    headers: authHeaders(token),
+  });
+
+  return Array.isArray(res.data?.orders) ? res.data.orders : [];
 };
 
 export const createSellPostForRole = async ({ role, token, payload }) => {
@@ -367,3 +442,28 @@ export const getConsumerRetailPosts = async ({ token, district, thana, signal })
 
 export const resellerRoleLabel = (role) =>
   ROLE_LABELS[role] || ROLE_LABELS[normalizeApiRole(role)] || "বিক্রেতা";
+
+// Wholesaler specific helpers
+export const getWholesalerBulkPostDetails = async ({ postId, token, signal }) => {
+  const res = await axios.get(
+    `${Api}${ApiPaths.wholesaler.bulkPostDetails(postId)}`,
+    {
+      signal,
+      headers: authHeaders(token),
+    }
+  );
+
+  // return structured post object when available
+  return res.data?.post ?? res.data;
+};
+
+export const getWholesalerProductDetails = async ({ productId, token, signal }) => {
+  // backend exposes a wholesaler product details route
+  const endpoint = `/api/v1/wholesaler/products/${productId}`;
+  const res = await axios.get(`${Api}${endpoint}`, {
+    signal,
+    headers: authHeaders(token),
+  });
+
+  return res.data?.product ?? res.data;
+};

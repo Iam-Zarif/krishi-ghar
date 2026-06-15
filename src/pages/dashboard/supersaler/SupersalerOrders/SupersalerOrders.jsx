@@ -25,6 +25,37 @@ const normalizeOrders = (orders) =>
     items: Array.isArray(order.items) ? order.items : [],
   }));
 
+const normalizePurchasedProductsAsOrders = (products) =>
+  (Array.isArray(products) ? products : []).map((product) => {
+    const quantity = num(product?.purchasedQuantity || product?.quantity || 1);
+    const price = num(product?.price || product?.purchasedPrice || 0);
+    const totalPrice = num(product?.purchasedPrice) || price * quantity;
+    const orderId = product?.purchasedFromOrder || product?.orderId || product?._id;
+
+    return {
+      _id: `${orderId}-${product?._id || product?.id}`,
+      orderId,
+      orderStatus: product?.orderStatus || "paid",
+      paymentStatus: "paid",
+      totalAmount: totalPrice,
+      subtotal: totalPrice,
+      deliveryFee: 0,
+      createdAt: product?.purchasedAt || product?.updatedAt || product?.createdAt,
+      updatedAt: product?.updatedAt,
+      items: [
+        {
+          _id: product?._id || product?.id,
+          productId: product,
+          productName: product?.productName || "নামহীন পণ্য",
+          productImage: product?.image,
+          price,
+          quantity,
+          totalPrice,
+        },
+      ],
+    };
+  });
+
 function ErrorBlock({ message, onRetry }) {
   return (
     <div className="mb-5 w-full rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 flex items-center justify-between">
@@ -87,14 +118,16 @@ export default function SupersalerOrders() {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       }),
-      axios.get(`${Api}${ApiPaths.supersaler.ownProducts}`, {
+      axios.get(`${Api}${ApiPaths.supersaler.purchasedProducts}`, {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       }),
     ])
       .then(([pendingRes, paidRes]) => {
         const buyOrders = normalizeOrders(pendingRes?.data?.orders);
-        const purchasedOrders = normalizeOrders(paidRes?.data?.orders);
+        const purchasedOrders = Array.isArray(paidRes?.data?.products)
+          ? normalizePurchasedProductsAsOrders(paidRes.data.products)
+          : normalizeOrders(paidRes?.data?.orders);
 
         setOrderBuckets({
           pending: buyOrders.filter(

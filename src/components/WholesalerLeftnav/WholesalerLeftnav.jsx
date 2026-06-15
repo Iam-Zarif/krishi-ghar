@@ -29,6 +29,11 @@ const WholesalerLeftnav = () => {
       icon: FaStar,
     },
     {
+      name: "অর্ডারসমূহ",
+      path: "/dashboard/wholesaler/orders",
+      icon: FaClipboardList,
+    },
+    {
       name: "আমার পণ্যসমূহ",
       path: "/dashboard/wholesaler/all-products",
       icon: FaBoxOpen,
